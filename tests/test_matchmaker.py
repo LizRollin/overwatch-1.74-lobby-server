@@ -7,13 +7,14 @@ from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from ow174.game.content import game_map
+from ow174.game.content import PRACTICE_RANGE, game_map
 from ow174.lobby.matchmaker import QUICK_PLAY, Matchmaker, Ruleset, Ticket, build_roster, load_rules
 
 TANK, DAMAGE, SUPPORT = 2, 1, 3
 SIX = Ruleset()
 TWO_OF_EACH = {TANK: 2, DAMAGE: 2, SUPPORT: 2}
 KINGS_ROW, HYBRID, DEATHMATCH = 0x08000000000000D4, 0x0230000000000016, 0x023000000000001E
+ILIOS, CHATEAU_GUILLARD = 0x080000000000066D, 0x08000000000007A4  # control; deathmatch only
 
 
 def tickets(*parties):
@@ -103,6 +104,20 @@ class RulesTests(unittest.TestCase):
         chosen, ruleset = matchmaker._pick_map(matchmaker.rules_of(QUICK_PLAY))
         self.assertIn(chosen.mode_guid, {r.mode for r in matchmaker.rules_of(QUICK_PLAY).rulesets})
         self.assertEqual(chosen.mode_guid, ruleset.mode)
+
+    def test_the_dashboards_map_wins_where_the_queues_modes_allow_it(self):
+        matchmaker = Matchmaker(SimpleNamespace(game=None))
+        rules = matchmaker.rules_of(QUICK_PLAY)
+        matchmaker.forced_map = ILIOS
+        chosen, ruleset = matchmaker._pick_map(rules)
+        self.assertEqual((chosen.map_guid, chosen.mode_name), (ILIOS, "Control"))
+        self.assertEqual(ruleset.mode, chosen.mode_guid)
+        matchmaker.forced_map = CHATEAU_GUILLARD  # not in any Quick Play mode: the queue keeps its pick
+        chosen, _ = matchmaker._pick_map(rules)
+        self.assertNotEqual(chosen.map_guid, CHATEAU_GUILLARD)
+        matchmaker.forced_map = PRACTICE_RANGE.map_guid  # loads in every queue
+        chosen, _ = matchmaker._pick_map(rules)
+        self.assertIs(chosen, PRACTICE_RANGE)
 
 
 if __name__ == "__main__":

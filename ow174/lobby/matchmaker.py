@@ -213,7 +213,7 @@ class Matchmaker:
     def __init__(self, server, minimum_players: int = 0) -> None:
         self.server = server
         self.minimum_players = minimum_players  # 0: full teams; more: tests start with that many
-        self.forced_map: int | None = None  # a map Quick Play / Arcade must load; None = the card's pick
+        self.forced_map: int | None = None  # the dashboard's map for every queue; None = the card's pick
         self.rules = load_rules()
         self.tickets: list[Ticket] = []
         self.lock = threading.RLock()

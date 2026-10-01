@@ -695,21 +695,21 @@ class DashboardService:
         return {"message": f"Matches start as soon as {players} player(s) search."}
 
     def set_map(self, data: dict) -> dict:
-        """The map Quick Play and Arcade load, or the queue's random pick when empty/'random'. The chosen
-        map is only used when it can be hosted in the queue's modes; otherwise the queue falls back."""
+        """The map every queue loads, or each queue's own random pick ("random" or empty). A queue whose
+        modes the map is not played in keeps its own pick; the Practice Range loads in every queue."""
         matchmaker = getattr(self.lobby, "matchmaker", None)
         if matchmaker is None:
             raise ApiError("Matchmaking is off.", 409)
         value = str(data.get("map") or "").strip()
         if not value or value.lower() == "random":
             matchmaker.forced_map = None
-            return {"message": "Quick Play and Arcade use the queue's random map."}
+            return {"message": "Matches use their queue's random map."}
         guid = parse_guid(value)
         name = content.map_name(guid)
         if name is None:
             raise ApiError("The data does not know that map.", 400)
         matchmaker.forced_map = guid
-        return {"message": f"Quick Play and Arcade will load {name} (when the mode allows it)."}
+        return {"message": f"Matches load {name} when their queue's modes allow it."}
 
     def end_matches(self) -> dict:
         game = self.lobby.game
