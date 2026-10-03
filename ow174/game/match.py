@@ -580,7 +580,7 @@ class Match:
             updates += [
                 EntityUpdate(bot.entity, movement=bot.movement(self.tick))
                 for bot in self.bots
-                if bot.record_due(self.tick)
+                if bot.record_due(self.tick, SEND_EVERY)
             ]
         own = correction.own_record(viewer, self.tick)
         if own is not None:

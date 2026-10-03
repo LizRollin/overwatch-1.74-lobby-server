@@ -277,13 +277,16 @@ class Bot:
         self._stand()
         self.moved_tick = tick
 
-    def record_due(self, tick: int) -> bool:
-        """Whether this frame carries its state (SETTLE_TICKS)."""
+    def record_due(self, tick: int, every: int = 1) -> bool:
+        """Whether this frame carries its state: each frame while it walks and SETTLE_TICKS after, else
+        about once a second. `every` is the ticks between the frames sent (match.SEND_EVERY), so that a
+        resting bot's turn falls on a tick that sends."""
         if self.records_from is not None and tick < self.records_from:
             return False
         if self.walking() or (self.moved_tick is not None and tick - self.moved_tick < SETTLE_TICKS):
             return True
-        return tick % SETTLE_TICKS == self.entity % SETTLE_TICKS
+        period = max(1, SETTLE_TICKS // every)
+        return (tick // every) % period == self.entity % period
 
     def movement(self, tick: int) -> Movement:
         """Its state for the clients, as a player body's (match.Player.movement). The 3P animation takes

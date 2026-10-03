@@ -286,6 +286,16 @@ class StateTests(unittest.TestCase):
         due = [tick for tick in range(1000, 1000 + 3 * bots.SETTLE_TICKS) if bot.record_due(tick)]
         self.assertEqual(len(due), 3)
 
+    def test_every_standing_bot_gets_its_state_on_a_tick_that_sends(self):
+        # Frames go out every third tick (match.SEND_EVERY); a resting bot's turn must fall on one of them,
+        # or the clients never get its state and hide it.
+        for index in range(15):
+            bot = make_bot()
+            bot.entity = bots.BOT_ENTITY + index
+            sending = range(999, 999 + 3 * bots.SETTLE_TICKS, 3)
+            due = [tick for tick in sending if bot.record_due(tick, 3)]
+            self.assertEqual(len(due), 3, index)
+
 
 class FloorTests(unittest.TestCase):
     def test_without_collision_it_climbs_in_step_with_the_way(self):
