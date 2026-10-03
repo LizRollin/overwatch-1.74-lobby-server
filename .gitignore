@@ -24,6 +24,7 @@ profiles/
 game_path.txt
 server_address.txt
 player_name.txt
+public_address.txt
 default_account.txt
 matchmaking.json
 /game/

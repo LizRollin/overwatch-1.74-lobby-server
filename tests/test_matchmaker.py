@@ -24,6 +24,7 @@ from ow174.lobby.matchmaker import (
     Ruleset,
     Ticket,
     build_roster,
+    game_address,
     load_rules,
 )
 
@@ -47,6 +48,18 @@ def tickets(*parties):
 
 def sizes(roster):
     return [len(team) for team in roster.teams]
+
+
+class GameAddressTests(unittest.TestCase):
+    def test_players_outside_the_hosts_network_get_the_public_address(self):
+        def sock(reached, peer):
+            return SimpleNamespace(getsockname=lambda: (reached, 3724), getpeername=lambda: (peer, 50000))
+
+        self.assertEqual(game_address("1.2.3.4", sock("192.168.1.5", "85.10.20.30")), "1.2.3.4")
+        # The host's own game and its network's keep the address they reached the lobby at.
+        self.assertEqual(game_address("1.2.3.4", sock("127.0.0.1", "127.0.0.1")), "127.0.0.1")
+        self.assertEqual(game_address("1.2.3.4", sock("192.168.1.5", "192.168.1.7")), "192.168.1.5")
+        self.assertEqual(game_address("", sock("192.168.1.5", "85.10.20.30")), "192.168.1.5")
 
 
 class RosterTests(unittest.TestCase):

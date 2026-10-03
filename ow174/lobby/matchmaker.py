@@ -28,6 +28,7 @@ What the client needs:
   gets its 20600 after "Game Found!", like a game that searched from the menu.
 """
 
+import ipaddress
 import json
 import logging
 import random
@@ -244,6 +245,18 @@ def _fill(tickets: list[Ticket], ruleset: Ruleset, capacity: list, roles: dict, 
             [(ticket, account, given.get(index, 0)) for index, (ticket, account, _) in enumerate(team)]
         )
     return Roster(result)
+
+
+def game_address(public: str, sock) -> str:
+    """Where a player's game finds the game server: the address it reached the lobby at, or the public
+    address (--game-host) for a player from outside the host's network. A player on the host's own PC or
+    network keeps the address it reached, since many routers do not let it back in through their public
+    address."""
+    reached = sock.getsockname()[0]
+    if not public:
+        return reached
+    peer = ipaddress.ip_address(sock.getpeername()[0])
+    return reached if not peer.is_global else public
 
 
 def handoff_message(handoff, host: str, port: int) -> dict:
@@ -689,7 +702,7 @@ class Matchmaker:
         channel = server.social.open_match_chat(players[0][2].match_id, [s.account for s, _, _ in players])
         for session, _ticket, handoff in players:
             try:
-                host = server.settings.game_host or session.sock.getsockname()[0]
+                host = game_address(server.settings.game_host, session.sock)
                 session.send(CHAT_IN, 20404, {"+0x78": server.social.general})
                 session.send(CHAT_IN, 20402, {"+0x78": channel})
                 session.send(HANDOFF, 20600, handoff_message(handoff, host, game.port))

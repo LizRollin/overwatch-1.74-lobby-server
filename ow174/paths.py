@@ -13,6 +13,7 @@ RELAY_DLL = ROOT / "relay" / "owwfd_relay.dll"
 GAME_PATH_FILE = ROOT / "game_path.txt"  # the Overwatch.exe picked on the first start
 SERVER_ADDRESS_FILE = ROOT / "server_address.txt"  # the server joined last time
 PLAYER_NAME_FILE = ROOT / "player_name.txt"  # the name used to join last time
+PUBLIC_ADDRESS_FILE = ROOT / "public_address.txt"  # the host's public address, asked when hosting
 REQUIREMENTS = ROOT / "requirements.txt"
 
 
