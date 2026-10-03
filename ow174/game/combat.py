@@ -472,8 +472,9 @@ class Combat:
                 if segment_distance(centre, a, b) - shown.radius <= radius and amount > 0.0:
                     self._damage(player, target, amount, False, loadout, command.frame)
 
-    def update(self, now: float, tick: int) -> None:
-        """Each tick: keep where the bodies are, fly the rockets, respawn, send health that changed."""
+    def update(self, now: float, tick: int, frames: bool = True) -> None:
+        """Each tick: keep where the bodies are, fly the rockets, respawn, send health that changed. The
+        other players' body frames only on the ticks that send (`frames`)."""
         self.now, self.tick = now, tick
         for target in self._targets():
             history = self.history.setdefault(target.entity, deque(maxlen=HISTORY))
@@ -481,7 +482,8 @@ class Combat:
         for rocket in list(self.rockets):
             self._fly(rocket)
         self.projectiles.update(tick)
-        self.observers.update()
+        if frames:
+            self.observers.update()
         for when, who in list(self.respawns):
             if now >= when:
                 self.respawns.remove((when, who))

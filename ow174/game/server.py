@@ -40,7 +40,7 @@ from ow174.game.link import (
     delivery,
     peek_connection,
 )
-from ow174.game.match import Match, Player, no_skin, pong
+from ow174.game.match import Match, Player, no_skin, pong, sends
 from ow174.game.script.driver import warm_up
 from ow174.jam.codec import DecodeError
 from ow174.jam.values import to_jsonable
@@ -611,7 +611,7 @@ class GameServer:
             elif client.leaving_since is not None and now - client.leaving_since >= LEAVE_GRACE_SECONDS:
                 client.log("[!] still here after 20304, dropping the game")
                 self.drop(client)
-            elif client.open:
+            elif client.open and sends(self.tick):
                 client.send_frame(self.tick, now)
         self.matches = [match for match in self.matches if not match.ended]
         for key, (count, last) in list(self._dropped.items()):

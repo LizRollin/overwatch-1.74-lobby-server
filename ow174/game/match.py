@@ -99,6 +99,15 @@ UNRANKED, RANKED = 1, 9
 
 RETAIL_QUANTA = 16000  # microseconds per command frame; 20300 must name the client's own value
 TOURNAMENT_QUANTA = 7000  # tank_TournamentModeTickRate, which tournament mode turns on
+# Ticks between the datagrams to each client: retail sent one every third tick, 48 ms (OW2 traffic). The
+# statescript frames that go in them are built on those ticks only; bodies and scripts still run every tick.
+SEND_EVERY = 3
+
+
+def sends(tick: int) -> bool:
+    """Whether this tick sends the clients a datagram."""
+    return tick % SEND_EVERY == 0
+
 
 # Seconds after the client reports its map loaded.
 SEND_OWN_ENTITY = 0.3
@@ -674,7 +683,7 @@ class Match:
             collision = world_when_ready(game_map.map_guid, game_map.name, game_map.mode_guid)
             for bot in self.bots:
                 bot.step(tick, RETAIL_QUANTA / 1e6, collision)
-        self.combat.update(now, tick)
+        self.combat.update(now, tick, frames=sends(tick))
         if self.assemble_ends is not None and not self.assembled and now >= self.assemble_ends:
             self._end_assemble(now)
         for player in self.players:
@@ -685,7 +694,7 @@ class Match:
                 self._spawn_steps(player, client, now)
             if player.script.data_last and now >= player.script.next_ack:
                 self._owner_ack(player, player.script, now)
-            if player.body_script is not None and player.spawned:
+            if player.body_script is not None and player.spawned and sends(tick):
                 self._body_frames(player, client)
             if self.assembling() and player.steps_done >= 4 and now >= player.next_countdown:
                 self._send_countdown(player, now)
