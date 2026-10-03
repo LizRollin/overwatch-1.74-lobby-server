@@ -50,7 +50,7 @@ import math
 from collections import deque
 from dataclasses import dataclass
 
-from ow174.game import bots, observers, pools, projectiles, stats, world
+from ow174.game import bots, observers, pools, projectiles, stats, voicelines, world
 from ow174.game.bits import BitWriter
 from ow174.game.collision import AX, AY, AZ, BX, BY, BZ, CELL, CX, CY, CZ, MASK, MOVER, NUMBER
 from ow174.game.mover import mover_data
@@ -410,6 +410,7 @@ class Combat:
         self.melee_seen: dict[tuple, int] = {}  # (body, instance, state) -> the melee state's last counter
         self.projectiles = projectiles.Projectiles(self)  # leases, confirmations, the Biotic Field
         self.observers = observers.Observers(match)  # the bodies' statescript for the other clients
+        self.voice = voicelines.VoiceLines(match)  # the hero's spawn voice line (voicelines.py)
 
     # --- hooks (match.py) --------------------------------------------------------------------------
 
@@ -422,6 +423,7 @@ class Combat:
         heroes are assembled the countdown's frames carry it."""
         if player.client is not None and not self.match.assembling():
             player.client.queue_entities([player.mode_script.full_frame(mode_frame({}))])
+        self.voice.spawned(player, self.now)
 
     def command(self, player, command) -> None:
         """One command frame the player's body script ran: its shots hit."""
@@ -488,6 +490,7 @@ class Combat:
             if now >= when:
                 self.respawns.remove((when, who))
                 self._respawn(who)
+        self.voice.expire(now)
         self._send_health()
         current = {target.entity for target in self._targets()}
         for table in (self.history, self.vitals):
@@ -791,6 +794,7 @@ class Combat:
         old = player.body
         self.match.switch_hero(player, player.hero)  # a new body at the spawn point, the old one goes
         self.vitals.pop(old, None)
+        self.voice.spawned(player, self.now)
         log.info("[game] %s: %s respawned", self.match.label(), player.name)
 
     def _respawn_bot(self, bot) -> None:

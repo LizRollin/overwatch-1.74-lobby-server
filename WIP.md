@@ -25,7 +25,10 @@ This branch adds our own game server and real matchmaking. It works in the game,
 
 Written but not checked in the game yet: the kill feed, Helix Rockets and Biotic Field on other players'
 screens, no General chat during a match (it comes back in the menu), a queue match found while you are in
-the Practice Range.
+the Practice Range, a hero voice line on spawn (ow174/game/voicelines.py: the server begins one of the
+hero's networked voice stimuli on the body and the client plays it; verified to reach the client in step,
+not yet heard in the game. Works for the 18 heroes that have such a stimulus in their body statescript;
+Soldier: 76 and the others whose spawn chatter is purely client-side get none).
 
 ## Known problems
 
