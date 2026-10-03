@@ -23,6 +23,7 @@ class Paths:
     profiles: Path = ROOT / "profiles"
     template: Path = ROOT / "profile.json"
     default_account: Path = ROOT / "default_account.txt"  # the account a started game logs in as
+    matchmaking: Path = ROOT / "matchmaking.json"  # the dashboard's settings per queue card
     client_log: Path = ROOT / "client_msgs.log"
     inject_file: Path = ROOT / "inject.jsonl"
     log_file: Path = LOG_FILE

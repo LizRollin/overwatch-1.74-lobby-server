@@ -21,7 +21,17 @@ To switch modes, close the game and the black window, then start `START.bat` aga
 
 ## Host a server for others
 
-Choose **Server only**. It shows the addresses players on your network can use. For players over the internet, open port 3724 in your firewall and router and give them your public address, for example `1.2.3.4:3724`. They choose one of the **Join a server** modes in `START.bat`. Another port: `START.bat --mode server --port 12357`.
+Choose **Server only**. It shows the addresses players on your network can use. For players over the internet, open TCP port 3724 (the lobby) and UDP port 3730 (matches) in your firewall and router, start the server with your public address, and give players that address, for example `1.2.3.4:3724`:
+
+```
+START.bat --mode server --game-host 1.2.3.4
+```
+
+They choose one of the **Join a server** modes in `START.bat`. Another lobby port: `--port 12357`.
+
+The server reads each map's collision from your own copy of the game, so start `START.bat` in retail mode once first to pick your `Overwatch.exe`. It builds a map's collision the first time a match is played there, or all maps at once with `py tools/build_collision.py`.
+
+A match starts when its teams are full. To start it with fewer players, set "Players to start" in the dashboard or add `--test-players 2`.
 
 To play on it yourself too, start `START.bat` once more and choose **Join a server in retail mode** with `127.0.0.1:3724`. The dashboard stays reachable only on your own computer.
 
