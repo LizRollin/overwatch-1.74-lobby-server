@@ -73,7 +73,7 @@ PLAYER_FILTER = 0x00040001
 HEALTH: float | None = None
 # The heroes whose body statescript the server runs (ow174/game/script): their weapons and
 # abilities work and the client keeps its predictions. None = every hero.
-BODY_SCRIPT_HEROES: set[int] | None = {SOLDIER}
+BODY_SCRIPT_HEROES: set[int] | None = None
 
 # ClientInGame 20308 {4 flags, card}: a player's card for the client's player list, keyed by the id in
 # his entity's component 29 (0x7FF7896E88B0). With the first and fourth flag on it also posts "<name>
